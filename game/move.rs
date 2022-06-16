@@ -1,17 +1,18 @@
 
 /*An object that stores the player's current guess.*/
-struct Move {
-    mut guess:String
+pub struct Move {
+    guess:String
 }
 
 impl Move {
-    fn get_guess (&self) -> &self.guess{
+    pub fn get_guess (&self) -> &String {
         /*Returns the player's current guess.*/
-        return self.guess;
+        return &self.guess;
     }
 
-    fn set_guess (&self, &input: String) {
+    pub fn set_guess (mut self, input: &String) {
         /*Sets the player's current guess.*/
-        self.guess = input;
+        let new_guess = input;
+        self.guess = new_guess.to_string();
     }
 }

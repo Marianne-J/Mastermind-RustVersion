@@ -1,74 +1,79 @@
-pub mod console;
-pub mod board;
-pub mod move;
-pub mod player;
-pub mod roster;
+use super::board::Board;
+use super::console::Console;
+use super::roster::Roster;
+use super::player::Player;
+use super::r#move::Move;
 
 /*Starts the game and controls whether or not the game ends. Also
 passes information between structures.*/
-struct Master {
-    mut last_guess:String, mut number_of_players:isize, mut game_running:bool, board:Board, console:Console, roster:Roster
+pub struct Master {
+    last_guess:String, number_of_players:isize, game_running:bool, board:Board, console:Console, roster:Roster
 }
 
 impl Master {
-    fn start_game (&self) {
+    pub fn start_game (&self) {
         /*Starts the game.*/
-        prepare_game();
+        self.prepare_game();
         
-        while game_running == true {
-            do_outputs();
-            get_inputs();
-            do_updates();
+        while self.game_running == true {
+            self.do_outputs();
+            self.get_inputs();
+            self.do_updates();
         }
     }
 
     fn prepare_game (&self) {
         /*Prepares the game.*/
-        for i in 0..number_of_players {
+        for i in 0..self.number_of_players {
             //Set player names and moves
-            let mut name = console.read(String::from("Enter a name for player " + i.to_string() + ": "));
-            let mut new_player = Player{player_move:Move{guess:String::from("")}, name:String::from("")};
-            new_player.set_name(name);
-            move_object = Move{guess:String::from("")};
-            move_object.set_guess("----");
-            new_player.set_move(move_object);
+            let prompt = "Enter a name for player ".to_owned() + &i.to_string() + ": ";
+            let name = self.console.read(&String::from(prompt));
+            let new_player = Player{player_move:Move{guess:String::from("")}, name:String::from("")};
+            new_player.set_name(&name);
+            let move_object = Move{guess:String::from("")};
+            move_object.set_guess(&String::from("----"));
+            new_player.set_move(&move_object);
 
             //Add player to the roster
-            roster.add_player(new_player);
+            self.roster.add_player(new_player);
         }
     }
 
     fn do_outputs (&self) {
         /*Calls the console to display the current board.*/
-        console.write(String::from("\n" + &board.board_to_string(roster.players)));
+        let prompt = "\n".to_owned() + &self.board.board_to_string(&self.roster.players);
+        self.console.write(&String::from(prompt));
     }
 
-    fn get_inputs (&self) {
+    fn get_inputs (mut self) {
         /*Calls the console to take the current player's input.*/
-        let mut current_player = roster.get_current();
+        let current_player = self.roster.get_current();
+        let current_player_name = current_player.get_name();
+        let prompt = current_player_name.to_owned() + &"'s turn:";
 
-        console.write(String::from(&current_player.get_name() + "'s turn:"));
-        last_guess = console.read("What is your guess? ");
+        self.console.write(&String::from(prompt));
+        self.last_guess = self.console.read(&String::from("What is your guess? "));
     }
 
-    fn do_updates (&self) {
+    fn do_updates (mut self) {
         /*Updates the game based on the player's input.*/
         //Get the current player
-        let mut current_player = roster.get_current();
+        let current_player = self.roster.get_current();
 
         //Set the player's move and call Board to apply changes
-        let mut move_object = Move{guess:String::from("")};
-        move_object.set_guess(&last_guess);
+        let move_object = Move{guess:String::from("")};
+        move_object.set_guess(&self.last_guess);
         current_player.set_move(&move_object);
-        board.apply(&move_object, &roster.current);
+        self.board.apply(&move_object, self.roster.get_current_index());
 
         //Check if the game is over
-        if board.check_win() == true {
-            game_running = false;
-            console.write("\n" + &current_player.get_name() + " wins!");
+        if self.board.check_win() == true {
+            self.game_running = false;
+            let prompt = "\n".to_owned() + current_player.get_name() + "wins!";
+            self.console.write(&String::from(prompt));
         }
 
         //Move to the next player
-        roster.next_player();
+        self.roster.next_player();
     }
 }

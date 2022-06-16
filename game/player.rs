@@ -1,27 +1,30 @@
+use super::r#move::Move;
 
 /*An object that stores a player's information.*/
-struct Player {
-   mut player_move:Move, name:String
+pub struct Player {
+   player_move:Move, name:String
 }
 
 impl Player {
-    fn get_move (&self) -> &self.player_move {
+    pub fn get_move (&self) -> &Move {
         /*Returns the player's current move.*/
-        return self.player_move;
+        return &self.player_move;
     }
 
-    fn get_name (&self) -> &self.player_move {
+    pub fn get_name (&self) -> &String {
         /*Returns the player's name.*/
-        return self.name;
+        return &self.name;
     }
 
-    fn set_move (&self, &new_move: Move) {
+    pub fn set_move (mut self, new_move: &Move) {
         /*Sets the player's current move.*/
-        self.player_move = new_move;
+        let set_new_move = new_move;
+        self.player_move = *set_new_move;
     }
 
-    fn set_name (&self, &new_name: String) {
+    pub fn set_name (mut self, new_name: &String) {
         /*Sets the player's name.*/
-        self.name = new_name;
+        let set_new_name = new_name;
+        self.name = set_new_name.to_string();
     }
 }

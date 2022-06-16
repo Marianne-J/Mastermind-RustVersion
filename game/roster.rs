@@ -1,24 +1,30 @@
+use super::player::Player;
 
 /*Keeps track of the players and the current turn*/
-struct Roster {
-    mut players[Player;2], mut current:isize, mut add_player_index:isize
+pub struct Roster {
+    current:usize, pub players:Vec<Player>
 }
 
 impl Roster {
-    fn add_player (&self, &player: Player) {
+    pub fn add_player (mut self, player: Player) {
         /*Adds player to the roster.*/
         if self.players.len() < 2 {
-            self.players[self.add_player_index] = player;
+            self.players.push(player);
         }
     }
 
-    fn get_current (&self) -> &Player {
+    pub fn get_current (&self) -> &Player {
         /*Returns the current player.*/
-        return self.players[current];
+        return &self.players[self.current];
     }
 
-    fn next_player (&self) {
+    pub fn get_current_index (&self) -> &usize {
+        /*Returns the index of the current player.*/
+        return &self.current
+    }
+
+    pub fn next_player (mut self) {
         /*Changes the turn to the next player.*/
-        self.current = (self.current + 1) % self.players.len()
+        self.current = (self.current + 1) % 2;
     }
 }

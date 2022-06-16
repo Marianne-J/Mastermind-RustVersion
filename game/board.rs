@@ -1,72 +1,84 @@
+extern crate rand;
+
+use rand::Rng;
+use super::r#move::Move;
+use super::player::Player;
 
 /*Builds the text to be displayed to the terminal.*/
-struct Board {
-    mut code:String, mut guess:String, mut player_1_status[String;2], mut player_2_status[String;2], mut turn:isize
+pub struct Board {
+    code:String, guess:String, turn:usize, player_1_status:[String; 2], player_2_status:[String; 2]
 }
 
 impl Board {
-    fn apply (&self, &move_input: Move, &turn_input: isize) {
+    pub fn apply (mut self, move_input: &Move, turn_input: &usize) {
         /*Applies the move made to the player who made the move.*/
-        guess = move_input.get_guess();
-        turn = turn_input;
+        let set_guess = move_input.get_guess();
+        let set_turn = turn_input;
+        
+        self.guess = set_guess.to_string();
+        self.turn = *set_turn;
 
-        if turn == 0 {
-            player_1_status[0] = guess;
+        if self.turn == 0 {
+            self.player_1_status[0] = self.guess;
 
             let mut hint = String::new();
             for i in 0..4 {
-                if guess[i] == code[i] {
+                if self.guess.chars().nth(i).unwrap() == self.code.chars().nth(i).unwrap() {
                     hint.push_str("x");
-                } else if code.contains(guess[i]) {
+                } else if self.code.contains(self.guess.chars().nth(i).unwrap()) {
                     hint.push_str("o");
                 } else {
                     hint.push_str("*");
                 }
             }
-            player_1_status[1] = hint;
-        } else if turn == 1 {
-            player_2_status[0] = guess;
+            self.player_1_status[1] = hint;
+        } else if self.turn == 1 {
+            self.player_2_status[0] = self.guess;
 
             let mut hint = String::new();
             for i in 0..4 {
-                if guess[i] == code[i] {
+                if self.guess.chars().nth(i).unwrap() == self.code.chars().nth(i).unwrap() {
                     hint.push_str("x");
-                } else if code.contains(guess[i]) {
+                } else if self.code.contains(self.guess.chars().nth(i).unwrap()) {
                     hint.push_str("o");
                 } else {
                     hint.push_str("*");
                 }
             }
-            player_2_status[1] = hint;
+            self.player_2_status[1] = hint;
             }    
         }
 
-    fn check_win (&self) -> bool {
-        if guess == code {
+    pub fn check_win (&self) -> bool {
+        if self.guess == self.code {
             return true;
         } else {
             return false;
         }
     }
 
-    fn board_to_string (&self, &players[Player;2]) -> String {
-        let mut player_1 = String::from("Player " + &players[0].get_name() + ": " + &player_1_status[0] + "," + &player_1_status[1] + "\n");
-        let mut player_2 = String::from("Player " + &players[1].get_name() + ": " + &player_2_status[0] + "," + &player_2_status[1] + "\n");
+    pub fn board_to_string (&self, players: &Vec<Player>) -> String {
+        let player_1_concat = "Player ".to_owned() + &players[0].get_name() + ": " + &self.player_1_status[0] + "," + &self.player_1_status[1];
+        let player_2_concat = "Player ".to_owned() + &players[1].get_name() + ": " + &self.player_2_status[0] + "," + &self.player_2_status[1];
+        
+        let player_1 = String::from(player_1_concat);
+        let player_2 = String::from(player_2_concat);
 
-        let mut status = String::from(player_1 + player_2);
-        let mut current_board = String::from("\n--------------------\n" + status + "--------------------\n");
+        let status = String::from(player_1 + &player_2);
+        let current_board = String::from("\n--------------------\n".to_owned() + &status + "--------------------\n");
 
         return current_board;
     }
 
-    fn prepare (&self) {
+    pub fn prepare (mut self) {
         let mut rng = rand::thread_rng();
-        let mut generated_code = rng.gen_range(1000..9999);
+        
+        let generated_code: isize = rng.gen_range(1000..9999);
 
-        code = generated_code;
-        player_1_status[0] = String::from("----");
-        player_1_status[1] = String::from("****");
-        player_2_status[0] = String::from("----");
-        player_2_status[1] = String::from("****");
+        self.code = generated_code.to_string();
+        self.player_1_status[0] = String::from("----");
+        self.player_1_status[1] = String::from("****");
+        self.player_2_status[0] = String::from("----");
+        self.player_2_status[1] = String::from("****");
     }
 }
